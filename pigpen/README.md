@@ -54,12 +54,11 @@ This will need to be changed to the full S3 path, so Pig can find it:
 ```
 REGISTER s3://examplebucket/pigpen.jar;
 ```
-
-You can then proceed to create a bucket and upload the relevant files:
+You may consider automating this with a small script. You can then proceed to create a bucket and upload the relevant files:
 ``` bash
 $ aws s3 mb s3://examplebucket
-$ aws s3 cp  pigpen.jar s3://examplebucket/pigpen.jar
-$ aws s3 cp  input.txt s3://examplebucket/input.txt
+$ aws s3 cp pigpen.jar s3://examplebucket/pigpen.jar
+$ aws s3 cp input.txt s3://examplebucket/input.txt
 $ aws s3 cp myscript.pig s3://examplebucket/myscript.pig
 $ aws s3 ls s3://examplebucket
 2017-05-23 05:47:57     973295 input.txt
@@ -69,7 +68,7 @@ $ aws s3 ls s3://examplebucket
 ```
 
 Note we did not create the output directory. This *must not* exist.
-If this is the first cluster you have run, you will need to run the following:
+If this is the first cluster you have run, you will now need to run the following:
 
 ``` bash
 $ aws emr create-default-roles
@@ -83,8 +82,8 @@ This command will then:
 
 ``` bash
 $ aws emr create-cluster --name "Pig Cluster" --release-label emr-5.5.0 --applications Name=Pig \
---use-default-roles --instance-type m3.xlarge --instance-count 1 --log-uri s3://examplebucket --auto-terminate \
---steps Type=PIG,Name="Pig Program",ActionOnFailure=CONTINUE,Args=[-f,s3://examplebucketmyscript.pig,-p,INPUT=s3://examplebucket/input.txt,-p,OUTPUT=s3://examplebucket/output]
+--use-default-roles --instance-type m3.xlarge --instance-count 3 --log-uri s3://examplebucket --auto-terminate \
+--steps Type=PIG,Name="Pig Program",ActionOnFailure=CONTINUE,Args=[-f,s3://examplebucket/myscript.pig,-p,INPUT=s3://examplebucket/input.txt,-p,OUTPUT=s3://examplebucket/output]
 ```
 
 Finally, download the output from the S3 bucket:
